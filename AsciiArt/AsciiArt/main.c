@@ -183,7 +183,7 @@ int main(int argc, char* argv[])
             somma /= larghezzaBlocco*altezzaBlocco; //divide per fare la media
             
             if (somma >= 0 && somma < NUMEROGRIGI)
-                charImage[i][j] =  grigi[somma][ random()%strlen(grigi[somma])]; //tra tutti i caratteri corrispondenti, ne viene scelto uno a caso
+                charImage[i][j] =  grigi[somma][ rand()%strlen(grigi[somma])]; //tra tutti i caratteri corrispondenti, ne viene scelto uno a caso
         }
     }
     
