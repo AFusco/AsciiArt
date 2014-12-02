@@ -1,21 +1,12 @@
-//
-//  AsciiArt.h
-//  AsciiArt
-//
-//  Created by Alessandro Fusco on 02/12/14.
-//  Copyright (c) 2014 Alessandro Fusco. All rights reserved.
-//
-
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "bmp.h"
-#include <string.h>
-
+#include "string.h"
 
 #define NUMEROGRIGI 8
-const char* grigi[] =
+
+char* grigi[] =
 {
     "#%$",
     "W8KMA",
@@ -27,21 +18,26 @@ const char* grigi[] =
     " "
 };
 
+//Fa la media dei valori RGB di un pixel, per trovarne la tonalità di grigio
+int grey(RGBTRIPLE pixel)
+{
+    return ((pixel.rgbtBlue + pixel.rgbtGreen + pixel.rgbtRed)/3);
+}
 
-int grey(RGBTRIPLE pixel);
-int shadeofgrey(RGBTRIPLE p);
-
+//Trova il range di grigio corrispondente a un pixel
+int shadeofgrey(RGBTRIPLE p)
+{
+    return grey(p)*NUMEROGRIGI/256;
+}
 
 int main(int argc, char* argv[])
 {
     
-    
-    //Variabili per i file
+    //Variabili per i files
     char *infile, *outfile;
     FILE *inptr, *outptr;
     
-    
-    //Per l'header e le info dell'immagine
+    //Header e info dell'immagine
     BITMAPFILEHEADER bf;
     BITMAPINFOHEADER bi;
     
@@ -49,25 +45,18 @@ int main(int argc, char* argv[])
     int padding;
     int bmpHeight, bmpWidth;
     
-    
     //Matrici di supporto
     int** greyImage;
     char** charImage;
     
-    //Dimensioni dei singoli blocchi
+    //Dimensione dei blocchi di pixel
     int larghezzaBlocco, altezzaBlocco;
     
-    // Pixel temporaneo
+    //Pixel temporaneo per la lettura
     RGBTRIPLE triple;
     
-    // Numero di blocchi in una riga e in una colonna
+    //Numero di blocchi per riga e colonna
     int blocchiOrizzontali, blocchiVerticali;
-    
-    // Somma temporanea (usata per fare la media delle tonalità di grigio)
-    int somma = 0;
-    
-    //Indici per i cicli for
-    int i, j, a, b;
     
     
     if (argc != 4)
@@ -76,8 +65,7 @@ int main(int argc, char* argv[])
         return 1;
     }
     
-    
-    //Il rapporto altezza/larghezza dei font monospace è approssimabile a 2:1
+    //Calcola le dimensioni di un blocco di pixel, tenendo conto che il rapporto altezza/larghezza della maggior parte dei font monospace è di circa 2:1
     larghezzaBlocco = atoi(argv[1]);
     altezzaBlocco = larghezzaBlocco * 2;
     
@@ -127,8 +115,7 @@ int main(int argc, char* argv[])
     bmpWidth = bi.biWidth;
     
     
-    
-    //Allocazione della memoria per una matrice
+    //Alloca una matrice di int (uno per ogni pixel)
     greyImage = (int**)malloc(bmpHeight * sizeof(int *));
     if (greyImage == NULL)
     {
@@ -136,7 +123,7 @@ int main(int argc, char* argv[])
         exit(-10);
     }
     
-    for (i = 0; i < bmpHeight; i++)
+    for (int i = 0; i < bmpHeight; i++)
     {
         greyImage[i] = (int*)malloc(bmpWidth * sizeof(int));
         if (greyImage[i] == NULL)
@@ -147,70 +134,60 @@ int main(int argc, char* argv[])
     }
     
     
-    //Inserisce dall'ultima riga alla prima la tonalità di grigio di ogni pixel nella matrice
-    for (i = 0; i < bmpHeight; i++)
+    //Legge pixel per pixel e registra il range di grigio corrispondente nella matrice
+    for (int i = 0; i < bmpHeight; i++)
     {
-        for (j = 0; j < bmpWidth; j++)
+        for (int j = 0; j < bmpWidth; j++)
         {
-            fread(&triple, sizeof(RGBTRIPLE), 1, inptr); //Legge un pixel
-            greyImage[bmpHeight-1-i][j] = shadeofgrey(triple);  //Calcola a quale range di grigio corrisponde il pixel
-                                                                //e lo mette nella matrice
+            fread(&triple, sizeof(RGBTRIPLE), 1, inptr);
+            greyImage[bmpHeight-1-i][j] = shadeofgrey(triple);
         }
         
-        
-        //Aggiunge i pixel NULL del padding di un'immagine bitmap
-        for (j = 0; j < padding; j++)
+        for (int j = 0; j < padding; j++)
         {
             greyImage[bmpHeight-1-i][j] = 0x00;
         }
         fseek(inptr, padding, SEEK_CUR);
     }
     
-    
-    //Calcola le dimensioni dei blocchi da leggere
+    //Calcola il numero di blocchi per riga e colonna
     blocchiOrizzontali = bmpWidth/larghezzaBlocco;
     blocchiVerticali = bmpHeight/altezzaBlocco;
     
-    
-    //Allocazione della memoria di una matrice di caratteri
+    //Alloca una matrice di char, uno per ogni blocco
     charImage = (char**)malloc(blocchiVerticali * sizeof(char *));
     if (charImage == NULL) exit(-15);
-    
-    for (i = 0; i < blocchiVerticali; i++)
+
+    for (int i = 0; i < blocchiVerticali; i++)
     {
         charImage[i] = (char*)malloc(blocchiOrizzontali * sizeof(char));
         if (charImage[i] == NULL) exit(-20);
     }
     
-    
-    
-    // Fa la media di ciascun blocco e mette il carattere corrispondente nella matrice charImage
-    for (i = 0; i < blocchiVerticali; i++)
+    //Per ogni pixel di ogni blocco, calcola la media del grigio e inserisce nella matrice charImage il carattere corrispondente
+    for (int i = 0; i < blocchiVerticali; i++)
     {
-        for (j = 0; j < blocchiOrizzontali; j++)
+        for (int j = 0; j < blocchiOrizzontali; j++)
         {
             
-            somma = 0;
+            int somma = 0;
             
-            for (a = 0; a < altezzaBlocco; a++)
+            for (int a = 0; a < altezzaBlocco; a++)
             {
-                for (b = 0; b <larghezzaBlocco; b++)
+                for (int b = 0; b <larghezzaBlocco; b++)
                 {
                     somma += greyImage[i* altezzaBlocco + a][j*larghezzaBlocco +b];
                 }
             }
             
-            somma /= larghezzaBlocco*altezzaBlocco;
+            somma /= larghezzaBlocco*altezzaBlocco; //divide per fare la media
             
             if (somma >= 0 && somma < NUMEROGRIGI)
-            {
-                charImage[i][j] =  grigi[somma][ random()%strlen(grigi[somma])]; // Prende un carattere a caso di una certa tonalità di grigio
-            }
+                charImage[i][j] =  grigi[somma][ random()%strlen(grigi[somma])]; //tra tutti i caratteri corrispondenti, ne viene scelto uno a caso
         }
     }
     
-    
-    //Scrive tutto nel file di testo
+    //Scrive nel file di testo
     for (int i = 0; i < blocchiVerticali; i++)
     {
         for (int j = 0; j<blocchiOrizzontali; j++)
@@ -220,39 +197,25 @@ int main(int argc, char* argv[])
         fprintf(outptr, "\n");
     }
     
-    // Chiude i files
+    // Chiude i file
     fclose(outptr);
     fclose(inptr);
     
     //Libera la memoria
-    for (i = 0; i < bmpHeight; i++)
+    for (int i = 0; i < bmpHeight; i++)
     {
+        
         free(greyImage[i]);
     }
     free(greyImage);
     
     
-    for (i = 0; i < blocchiVerticali; i++)
+    for (int i = 0; i < blocchiVerticali; i++)
     {
         free(charImage[i]);
     }
     free(charImage);
     
-    // ZACZAC
+    // ZAC ZAC ZAC
     return 0;
 }
-
-
-
-
-int grey(RGBTRIPLE pixel)
-{
-    return ((pixel.rgbtBlue + pixel.rgbtGreen + pixel.rgbtRed)/3);
-}
-
-int shadeofgrey(RGBTRIPLE p)
-{
-    return grey(p)*NUMEROGRIGI/256;
-}
-
-
