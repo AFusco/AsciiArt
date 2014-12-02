@@ -10,7 +10,6 @@
 		C53544041A2E44DD00B8E257 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = C53544031A2E44DD00B8E257 /* main.c */; };
 		C535440E1A2E459700B8E257 /* image.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = C535440B1A2E44FE00B8E257 /* image.bmp */; };
 		C535440F1A2E468B00B8E257 /* img.bmp in CopyFiles */ = {isa = PBXBuildFile; fileRef = C535440C1A2E44FE00B8E257 /* img.bmp */; };
-		C53544101A2E469000B8E257 /* img.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = C535440D1A2E44FE00B8E257 /* img.txt */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -20,7 +19,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 7;
 			files = (
-				C53544101A2E469000B8E257 /* img.txt in CopyFiles */,
 				C535440F1A2E468B00B8E257 /* img.bmp in CopyFiles */,
 				C535440E1A2E459700B8E257 /* image.bmp in CopyFiles */,
 			);
@@ -34,7 +32,6 @@
 		C535440A1A2E44F500B8E257 /* bmp.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bmp.h; sourceTree = "<group>"; };
 		C535440B1A2E44FE00B8E257 /* image.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = image.bmp; sourceTree = "<group>"; };
 		C535440C1A2E44FE00B8E257 /* img.bmp */ = {isa = PBXFileReference; lastKnownFileType = image.bmp; path = img.bmp; sourceTree = "<group>"; };
-		C535440D1A2E44FE00B8E257 /* img.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = img.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -70,7 +67,6 @@
 				C535440A1A2E44F500B8E257 /* bmp.h */,
 				C535440B1A2E44FE00B8E257 /* image.bmp */,
 				C535440C1A2E44FE00B8E257 /* img.bmp */,
-				C535440D1A2E44FE00B8E257 /* img.txt */,
 				C53544031A2E44DD00B8E257 /* main.c */,
 			);
 			path = AsciiArt;
